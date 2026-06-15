@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>老槐 · 寓言</title>
+<style>
+:root {
+  --bg: #0e0c0b;
+  --surface: #161210;
+  --gold: #c8a45a;
+  --gold-dim: #7a6030;
+  --gold-glow: rgba(200,164,90,0.15);
+  --text: #e8dfd0;
+  --text-muted: #a09080;
+  --text-faint: #5a4e44;
+  --red: #9b2335;
+  --red-glow: rgba(155,35,53,0.2);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; }
+
+body {
+  width: 100vw; height: 100dvh; overflow: hidden;
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', 'Noto Sans SC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex; align-items: center; justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── 舞台浮尘 ── */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(1px 1px at 15% 25%, rgba(200,164,90,0.2), transparent),
+    radial-gradient(1px 1px at 45% 40%, rgba(200,164,90,0.15), transparent),
+    radial-gradient(1.5px 1.5px at 70% 30%, rgba(200,164,90,0.12), transparent),
+    radial-gradient(1px 1px at 30% 60%, rgba(200,164,90,0.18), transparent),
+    radial-gradient(1.5px 1.5px at 85% 55%, rgba(200,164,90,0.15), transparent),
+    radial-gradient(1px 1px at 55% 70%, rgba(200,164,90,0.12), transparent);
+  animation: dustDrift 30s linear infinite;
+}
+@keyframes dustDrift {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+  50% { transform: translateY(-8px) rotate(1deg); opacity: 1; }
+  100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+}
+
+/* ── 光晕 ── */
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 30%, rgba(155,35,53,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 30% at 50% 90%, rgba(200,164,90,0.06) 0%, transparent 60%);
+}
+
+/* ── 容器 ── */
+#stage {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 900px; height: 100dvh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 3rem;
+}
+
+/* ── 页面 ── */
+.slide {
+  display: none;
+  width: 100%; height: 100%;
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  gap: 2rem;
+  animation: fadeSlideIn 0.8s ease both;
+}
+.slide.active {
+  display: flex;
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 金线 ── */
+.gold-rule {
+  width: 80px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.5; margin: 0 auto;
+}
+
+/* ── 标题 ── */
+.title-display {
+  font-family: 'Songti SC', 'Noto Serif SC', 'STSong', 'SimSun', 'KaiTi', serif;
+  font-size: clamp(2rem, 2.5vw + 1rem, 3.5rem);
+  font-weight: 700; color: var(--text);
+  letter-spacing: 0.08em; line-height: 1.4;
+  text-shadow: 0 2px 30px rgba(155,35,53,0.25);
+}
+.title-small {
+  font-family: 'Songti SC', 'Noto Serif SC', 'STSong', 'SimSun', 'KaiTi', serif;
+  font-size: clamp(1.2rem, 1.5vw + 0.5rem, 1.8rem);
+  font-weight: 600; color: var(--text);
+  letter-spacing: 0.06em; line-height: 1.5;
+}
+.title-large {
+  font-family: 'Songti SC', 'Noto Serif SC', 'STSong', 'SimSun', 'KaiTi', serif;
+  font-size: clamp(3rem, 5vw + 1rem, 5rem);
+  font-weight: 900; color: var(--gold);
+  letter-spacing: 0.1em; line-height: 1.2;
+}
+.subtitle {
+  font-size: clamp(0.9rem, 1vw + 0.3rem, 1.1rem);
+  color: var(--text-muted); letter-spacing: 0.1em;
+}
+.faint-note {
+  font-size: 0.85rem; color: var(--text-faint);
+  letter-spacing: 0.06em; font-style: italic;
+}
+
+/* ── SVG 树 ── */
+.tree-svg { width: 100%; max-width: 500px; height: auto; opacity: 0.85; }
+
+/* ── 两派 ── */
+.split-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(3rem, 10vw, 8rem); width: 100%;
+}
+.split-side {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 1rem; flex: 1; max-width: 300px;
+}
+.split-icon {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid var(--gold-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Songti SC', 'Noto Serif SC', serif;
+  font-size: 1.5rem; font-weight: 700;
+}
+.split-icon.old { color: var(--gold); background: rgba(200,164,90,0.08); }
+.split-icon.new { color: var(--text); background: rgba(155,35,53,0.1); }
+.split-label {
+  font-family: 'Songti SC', serif;
+  font-size: clamp(2rem, 3vw + 0.5rem, 4rem);
+  font-weight: 900; letter-spacing: 0.1em;
+}
+.split-label.old { color: var(--gold); }
+.split-label.new { color: var(--text); }
+.split-quote {
+  font-size: 0.9rem; color: var(--text-muted);
+  line-height: 1.7; max-width: 24ch;
+}
+
+/* ── 根网图 ── */
+.root-diagram {
+  position: relative; width: 100%; max-width: 500px;
+  height: 320px; margin: 0 auto;
+}
+/* 地面以上 */
+.tree-trunk {
+  position: absolute;
+  width: 18px; height: 120px;
+  background: linear-gradient(to bottom, var(--text-faint), var(--gold-dim));
+  border-radius: 4px;
+}
+.tree-trunk.old { left: 50%; bottom: 160px; transform: translateX(-50%); height: 140px; width: 20px; }
+.tree-trunk.young { bottom: 175px; width: 8px; height: 90px; }
+.tree-trunk.young:nth-of-type(2) { left: 22%; }
+.tree-trunk.young:nth-of-type(3) { left: 50%; transform: translateX(-50%); }
+.tree-trunk.young:nth-of-type(4) { left: 72%; }
+
+.tree-canopy {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.12;
+  background: var(--gold);
+}
+.canopy-old {
+  width: 180px; height: 120px;
+  left: 50%; bottom: 270px;
+  transform: translateX(-50%);
+  opacity: 0.18;
+}
+.canopy-young {
+  width: 60px; height: 50px;
+  opacity: 0.15;
+}
+
+/* 地面线 */
+.ground-line {
+  position: absolute;
+  left: 5%; right: 5%; bottom: 150px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), var(--gold), var(--gold-dim), transparent);
+  opacity: 0.5;
+}
+
+/* 根网 */
+.root-network {
+  position: absolute;
+  left: 10%; right: 10%; bottom: 40px;
+  height: 110px;
+}
+.root-line {
+  stroke: var(--gold-dim);
+  stroke-width: 1;
+  fill: none;
+  opacity: 0.5;
+  animation: rootPulse 4s ease-in-out infinite;
+}
+@keyframes rootPulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.65; }
+}
+
+.root-label {
+  position: absolute; bottom: 10px;
+  font-size: 0.8rem; color: var(--gold-dim);
+  letter-spacing: 0.06em;
+  font-family: 'Songti SC', serif;
+}
+.root-label.left { left: 15%; }
+.root-label.right { right: 15%; }
+.root-label.center { left: 50%; transform: translateX(-50%); }
+
+/* ground label */
+.ground-label-top {
+  position: absolute; top: 5px; left: 50%; transform: translateX(-50%);
+  font-size: 0.75rem; color: var(--text-faint); letter-spacing: 0.06em;
+}
+.ground-label-bottom {
+  position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+  font-size: 0.75rem; color: var(--text-faint); letter-spacing: 0.06em;
+}
+
+/* ── 时间线 ── */
+.timeline {
+  display: flex; flex-direction: column; gap: 1.5rem;
+  align-items: center;
+}
+.timeline-year {
+  font-family: 'Songti SC', serif;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 700; color: var(--text);
+  letter-spacing: 0.08em;
+  animation: yearFade 0.6s ease both;
+}
+.timeline-year:nth-child(2) { animation-delay: 0.15s; color: var(--text-muted); }
+.timeline-year:nth-child(3) { animation-delay: 0.3s; color: var(--gold); }
+.timeline-year:nth-child(4) { animation-delay: 0.45s; color: var(--gold); font-size: clamp(2.5rem, 5vw, 4rem); }
+.timeline-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold-dim);
+}
+@keyframes yearFade {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ── 问句 ── */
+.question-text {
+  font-family: 'Songti SC', 'Noto Serif SC', 'KaiTi', serif;
+  font-size: clamp(1.8rem, 3vw + 0.5rem, 3rem);
+  font-weight: 700; color: var(--text);
+  letter-spacing: 0.06em; line-height: 1.5;
+  text-shadow: 0 0 40px var(--gold-glow);
+}
+
+/* ── 揭晓 ── */
+.reveal-word {
+  font-family: 'Songti SC', serif;
+  font-size: clamp(3rem, 6vw, 6rem);
+  font-weight: 900; color: var(--gold);
+  letter-spacing: 0.3em;
+  text-shadow: 0 0 60px rgba(200,164,90,0.3);
+}
+.reveal-sub {
+  font-size: 1rem; color: var(--text-muted);
+  letter-spacing: 0.15em; margin-top: 0.5rem;
+}
+.reveal-body {
+  font-size: clamp(0.95rem, 1vw + 0.3rem, 1.1rem);
+  color: var(--text-muted); line-height: 2;
+  max-width: 48ch; text-align: left;
+}
+.reveal-body strong { color: var(--gold); font-weight: 600; }
+.reveal-body em { color: var(--text); font-style: normal; }
+
+/* ── 导航提示 ── */
+.nav-hint {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  z-index: 10;
+  font-size: 0.75rem; color: var(--text-faint);
+  letter-spacing: 0.08em;
+  transition: opacity 0.5s;
+}
+.nav-hint.hidden { opacity: 0; }
+
+/* ── 进度点 ── */
+.progress-dots {
+  position: fixed; top: 2rem; left: 50%; transform: translateX(-50%);
+  z-index: 10; display: flex; gap: 8px;
+}
+.progress-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--text-faint);
+  transition: all 0.4s;
+}
+.progress-dot.current {
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold-glow);
+  width: 16px; border-radius: 3px;
+}
+.progress-dot.past { background: var(--gold-dim); }
+
+/* ── 引用块 ── */
+.cite-block {
+  margin-top: 1.5rem; padding-top: 1.5rem;
+  border-top: 1px solid var(--gold-dim);
+  font-size: 0.8rem; color: var(--text-faint);
+  letter-spacing: 0.04em; font-style: italic;
+  line-height: 1.6;
+  max-width: 52ch;
+}
+
+/* ── 最终页 ── */
+.closing-line {
+  font-family: 'Songti SC', 'KaiTi', serif;
+  font-size: clamp(1.2rem, 2vw, 1.8rem);
+  color: var(--text); letter-spacing: 0.06em;
+  line-height: 1.8; max-width: 40ch;
+}
+
+/* ── 响应式 ── */
+@media (max-width: 600px) {
+  #stage { padding: 1.5rem; }
+  .split-row { flex-direction: column; gap: 2rem; }
+  .tree-svg { max-width: 300px; }
+  .progress-dots { top: 1rem; }
+  .nav-hint { bottom: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-dots" id="dots">
+  <span class="progress-dot"></span>
+  <span class="progress-dot"></span>
+  <span class="progress-dot"></span>
+  <span class="progress-dot"></span>
+  <span class="progress-dot"></span>
+  <span class="progress-dot"></span>
+  <span class="progress-dot"></span>
+  <span class="progress-dot"></span>
+</div>
+
+<div id="stage">
+
+  <!-- 第 1 页：开端 -->
+  <div class="slide active" data-index="0">
+    <p class="faint-note">从前</p>
+    <div class="gold-rule"></div>
+    <h1 class="title-display">有一棵树</h1>
+    <div class="gold-rule"></div>
+    <p class="subtitle">没人知道它是什么时候种下的</p>
+  </div>
+
+  <!-- 第 2 页：树的全盛 -->
+  <div class="slide" data-index="1">
+    <svg class="tree-svg" viewBox="0 0 500 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="canopyGrad" cx="50%" cy="40%">
+          <stop offset="0%" stop-color="#c8a45a" stop-opacity="0.15"/>
+          <stop offset="100%" stop-color="#c8a45a" stop-opacity="0.03"/>
+        </radialGradient>
+      </defs>
+      <!-- 树冠 -->
+      <ellipse cx="250" cy="120" rx="160" ry="110" fill="url(#canopyGrad)"/>
+      <ellipse cx="250" cy="100" rx="130" ry="90" fill="url(#canopyGrad)"/>
+      <ellipse cx="250" cy="80" rx="100" ry="70" fill="url(#canopyGrad)"/>
+      <!-- 树干 -->
+      <path d="M235 140 Q240 260 230 340 L270 340 Q260 260 265 140 Z" fill="rgba(120,100,80,0.3)" stroke="rgba(200,164,90,0.2)" stroke-width="0.5"/>
+      <!-- 大地 -->
+      <line x1="30" y1="340" x2="470" y2="340" stroke="rgba(200,164,90,0.3)" stroke-width="0.5"/>
+      <!-- 根系暗示 -->
+      <path d="M230 340 Q180 370 140 365" stroke="rgba(200,164,90,0.15)" stroke-width="0.8" fill="none"/>
+      <path d="M270 340 Q320 375 360 370" stroke="rgba(200,164,90,0.15)" stroke-width="0.8" fill="none"/>
+      <path d="M250 340 Q250 380 250 385" stroke="rgba(200,164,90,0.12)" stroke-width="0.6" fill="none"/>
+    </svg>
+    <p class="subtitle">遮天蔽日 · 纳半个村子的凉</p>
+  </div>
+
+  <!-- 第 3 页：两派 -->
+  <div class="slide" data-index="2">
+    <div class="split-row">
+      <div class="split-side">
+        <div class="split-icon old">守</div>
+        <div class="split-label old">守</div>
+        <p class="split-quote">"嫁接上去的，还是祖槐吗？"</p>
+      </div>
+      <div class="gold-rule" style="width:1px;height:120px;margin:0;"></div>
+      <div class="split-side">
+        <div class="split-icon new">换</div>
+        <div class="split-label new">换</div>
+        <p class="split-quote">"你愿意看着它完整地倒掉，还是让它换几根新枝继续活着？"</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 第 4 页：老陈的接法 —— 根网图 -->
+  <div class="slide" data-index="3">
+    <div class="title-small" style="margin-bottom:0.5rem;">老陈的接法</div>
+
+    <div class="root-diagram">
+      <svg viewBox="0 0 500 320" style="position:absolute;inset:0;width:100%;height:100%;">
+
+        <!-- 地面线 -->
+        <line x1="30" y1="160" x2="470" y2="160" stroke="rgba(200,164,90,0.4)" stroke-width="0.8"/>
+
+        <!-- 地上标签 -->
+        <text x="250" y="150" text-anchor="middle" fill="rgba(160,144,128,0.5)" font-size="11" letter-spacing="0.1em">地 上</text>
+
+        <!-- 老槐树干 -->
+        <rect x="240" y="60" width="20" height="100" rx="3" fill="rgba(160,140,120,0.25)" stroke="rgba(200,164,90,0.2)" stroke-width="0.5"/>
+
+        <!-- 三棵新苗 -->
+        <rect x="120" y="110" width="8" height="50" rx="2" fill="rgba(180,160,130,0.2)"/>
+        <rect x="195" y="105" width="9" height="55" rx="2" fill="rgba(180,160,130,0.2)"/>
+        <rect x="340" y="115" width="7" height="45" rx="2" fill="rgba(180,160,130,0.2)"/>
+
+        <!-- 树冠暗示 -->
+        <ellipse cx="250" cy="55" rx="90" ry="40" fill="rgba(200,164,90,0.06)"/>
+        <ellipse cx="124" cy="100" rx="30" ry="18" fill="rgba(200,164,90,0.05)"/>
+        <ellipse cx="200" cy="95" rx="32" ry="20" fill="rgba(200,164,90,0.05)"/>
+        <ellipse cx="344" cy="105" rx="28" ry="16" fill="rgba(200,164,90,0.05)"/>
+
+        <!-- 地下标签 -->
+        <text x="250" y="190" text-anchor="middle" fill="rgba(160,144,128,0.5)" font-size="11" letter-spacing="0.1em">地 下 · 根</text>
+
+        <!-- 老槐主根 -->
+        <path d="M250 160 Q245 200 240 240" stroke="rgba(200,164,90,0.35)" stroke-width="1.2" fill="none"/>
+        <path d="M250 160 Q260 210 265 245" stroke="rgba(200,164,90,0.3)" stroke-width="1" fill="none"/>
+
+        <!-- 根系网络 —— 老根分向新苗 -->
+        <path d="M245 200 Q200 220 180 250 Q150 275 124 290" stroke="rgba(200,164,90,0.4)" stroke-width="1" fill="none" stroke-dasharray="4 3"/>
+        <path d="M244 210 Q210 225 195 245 Q185 260 200 285" stroke="rgba(200,164,90,0.35)" stroke-width="0.8" fill="none" stroke-dasharray="3 4"/>
+        <path d="M255 205 Q300 225 320 250 Q335 270 340 288" stroke="rgba(200,164,90,0.4)" stroke-width="1" fill="none" stroke-dasharray="4 3"/>
+
+        <!-- 新苗自己的根 -->
+        <path d="M124 160 Q120 200 125 240" stroke="rgba(200,164,90,0.2)" stroke-width="0.7" fill="none"/>
+        <path d="M200 160 Q198 200 202 240" stroke="rgba(200,164,90,0.2)" stroke-width="0.7" fill="none"/>
+        <path d="M344 160 Q340 200 345 240" stroke="rgba(200,164,90,0.2)" stroke-width="0.7" fill="none"/>
+
+        <!-- 根端连接点 -->
+        <circle cx="240" cy="240" r="3" fill="rgba(200,164,90,0.5)"/>
+        <circle cx="265" cy="245" r="2.5" fill="rgba(200,164,90,0.4)"/>
+        <circle cx="124" cy="240" r="2.5" fill="rgba(200,164,90,0.3)"/>
+        <circle cx="202" cy="240" r="2.5" fill="rgba(200,164,90,0.3)"/>
+        <circle cx="345" cy="240" r="2.5" fill="rgba(200,164,90,0.3)"/>
+
+        <!-- 根网连接标注 -->
+        <text x="180" y="222" text-anchor="middle" fill="rgba(200,164,90,0.3)" font-size="9">老根养新苗</text>
+        <text x="300" y="232" text-anchor="middle" fill="rgba(200,164,90,0.3)" font-size="9">新叶遮老荫</text>
+
+      </svg>
+
+      <div class="root-label left" style="bottom:25px;">不是两棵树</div>
+      <div class="root-label center" style="bottom:12px;">也不是一棵树</div>
+      <div class="root-label right" style="bottom:25px;">老陈说：<span style="color:var(--gold)">"是什么，我也说不好"</span></div>
+    </div>
+
+  </div>
+
+  <!-- 第 5 页：时间流逝 -->
+  <div class="slide" data-index="4">
+    <div class="timeline">
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">第一年</div>
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">第三年</div>
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">第五年</div>
+      <div class="timeline-dot"></div>
+      <div class="timeline-year">第十年</div>
+      <div class="timeline-dot"></div>
+      <p class="subtitle" style="margin-top:1rem;">树是活的 · 年轮也是活的</p>
+    </div>
+  </div>
+
+  <!-- 第 6 页：疑问 -->
+  <div class="slide" data-index="5">
+    <p class="faint-note">很多年以后</p>
+    <div class="gold-rule"></div>
+    <h1 class="question-text">"到底哪一棵<br>才算祖槐？"</h1>
+    <div class="gold-rule"></div>
+    <p class="subtitle">"都是。" &nbsp; "都不是。"</p>
+  </div>
+
+  <!-- 第 7 页：揭晓 -->
+  <div class="slide" data-index="6">
+    <p class="faint-note" style="margin-bottom:-1rem;">这个寓言，不只是在讲树</p>
+    <div class="reveal-word">揭 晓</div>
+    <p class="reveal-sub">THE REVEAL</p>
+  </div>
+
+  <!-- 第 8 页：概念解释 -->
+  <div class="slide" data-index="7">
+    <div class="reveal-body">
+      <p>英国历史学家 <strong>埃里克·霍布斯鲍姆</strong> 在《传统的发明》中指出：很多我们今天以为"自古如此"的传统，实际上是在某个历史节点被<em>人为创造、改造、重新诠释</em>过的。</p>
+      <p style="margin-top:1.2rem;">传统不是古董——<em>它是活着的、被不断选择和重塑的东西。</em></p>
+      <p style="margin-top:1.2rem;">京剧就是一次"嫁接"的产物。四大徽班进京，融合汉调、昆曲、秦腔——<em>它当年就是创新的、混合的、不"纯正"的。</em></p>
+      <p style="margin-top:1.2rem;">我们今天争论的——改了的戏曲还是不是戏曲——本质上是在问：<strong>新苗和老槐，哪一棵才算祖槐？</strong></p>
+    </div>
+    <div class="cite-block">
+      参考：Eric Hobsbawm & Terence Ranger (eds.),<br>
+      <em>The Invention of Tradition</em> (Cambridge University Press, 1983)
+    </div>
+  </div>
+
+  <!-- 第 9 页：收束 -->
+  <div class="slide" data-index="8">
+    <div class="closing-line">
+      树是活的，传统也是。
+    </div>
+    <div class="gold-rule" style="margin:2rem auto;"></div>
+    <div class="closing-line" style="font-size:clamp(1rem, 1.5vw, 1.3rem); color:var(--text-muted);">
+      我们今天在这棵树下乘凉的人<br>
+      也许有一天<br>
+      也要做那个<strong style="color:var(--gold);">引根接枝</strong>的人
+    </div>
+  </div>
+
+</div>
+
+<p class="nav-hint" id="nav-hint">点击任意位置翻页 · 共 9 页</p>
+
+<script>
+var slides = document.querySelectorAll('.slide');
+var dots = document.querySelectorAll('.progress-dot');
+var navHint = document.getElementById('nav-hint');
+var current = 0;
+var total = slides.length;
+
+function showSlide(index) {
+  slides.forEach(function(s) { s.classList.remove('active'); });
+  slides[index].classList.add('active');
+
+  dots.forEach(function(d, i) {
+    d.classList.remove('current', 'past');
+    if (i === index) d.classList.add('current');
+    else if (i < index) d.classList.add('past');
+  });
+
+  if (index === total - 1) {
+    navHint.classList.add('hidden');
+  } else {
+    navHint.classList.remove('hidden');
+  }
+}
+
+document.addEventListener('click', function() {
+  if (current < total - 1) {
+    current++;
+    showSlide(current);
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+    e.preventDefault();
+    if (current < total - 1) { current++; showSlide(current); }
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (current > 0) { current--; showSlide(current); }
+  }
+});
+
+// 初始化
+showSlide(0);
+</script>
+
+</body>
+</html>
